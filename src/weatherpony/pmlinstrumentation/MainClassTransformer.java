@@ -72,7 +72,7 @@ public class MainClassTransformer implements ClassFileTransformer, Opcodes{
 			}
 		}
 		try{
-			if(name.equals(mainClass)){
+			if(mainClass.equals(name)){
 				System.out.println("PML: normal main class loading");
 				//transform the class to the moved one
 				ClassReader cr = new ClassReader(data);
