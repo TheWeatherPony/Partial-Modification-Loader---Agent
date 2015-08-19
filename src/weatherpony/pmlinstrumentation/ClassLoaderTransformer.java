@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.security.ProtectionDomain;
@@ -20,7 +19,6 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.CheckClassAdapter;
 
@@ -176,7 +174,7 @@ public class ClassLoaderTransformer implements ClassFileTransformer, Opcodes{
 					save.getParentFile().mkdirs();
 					save.createNewFile();
 					Files.write(save.toPath(), classfileBuffer);
-					System.out.println("saving generated replacement class bytes for "+className);
+					System.out.println("saving generated replacement class bytes for "+className + "loaded from "+((loader==null)?"null":loader));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -262,6 +260,10 @@ public class ClassLoaderTransformer implements ClassFileTransformer, Opcodes{
 			mv.visitLdcInsn("sun.reflect.");
 			mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "startsWith", "(Ljava/lang/String;)Z");
 			Label l26 = new Label();
+			mv.visitJumpInsn(IFNE, l26);
+			mv.visitVarInsn(ALOAD, 1);
+			mv.visitLdcInsn("java.");
+			mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "startsWith", "(Ljava/lang/String;)Z");
 			mv.visitJumpInsn(IFNE, l26);
 			Label l27 = new Label();
 			mv.visitLabel(l27);
@@ -764,6 +766,10 @@ public class ClassLoaderTransformer implements ClassFileTransformer, Opcodes{
 			mv.visitLdcInsn("sun.reflect.");
 			mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "startsWith", "(Ljava/lang/String;)Z");
 			Label l22 = new Label();
+			mv.visitJumpInsn(IFNE, l22);
+			mv.visitVarInsn(ALOAD, 1);
+			mv.visitLdcInsn("java.");
+			mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "startsWith", "(Ljava/lang/String;)Z");
 			mv.visitJumpInsn(IFNE, l22);
 			Label l23 = new Label();
 			mv.visitLabel(l23);

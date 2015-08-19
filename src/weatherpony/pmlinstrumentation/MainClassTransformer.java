@@ -3,31 +3,21 @@ package weatherpony.pmlinstrumentation;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
-import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.jar.JarFile;
 
-import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.RemappingClassAdapter;
-import org.objectweb.asm.commons.SimpleRemapper;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InnerClassNode;
 
 import weatherpony.pml.launch.PMLLoadFocuser;
 
 public class MainClassTransformer implements ClassFileTransformer, Opcodes{
 	public MainClassTransformer(){
 		this.mainClass = tryToFindMainClass_early();
+		this.mainClass2 = this.mainClass.replace('.', '/');
 		System.out.println("PML: normal main class found - "+mainClass);
 		if(System.getProperty("pml.proxyMain") != null){
 			System.setProperty(PMLLoadFocuser.pmlMainClassTransformerSystemProperty, "t");
@@ -62,17 +52,18 @@ public class MainClassTransformer implements ClassFileTransformer, Opcodes{
 		return mainClass;
 	}
 	public String mainClass;
+	public String mainClass2;
 	public boolean alreadyTransformed = false;
 	@Override
 	public byte[] transform(ClassLoader loader, String name, Class<?> arg2, ProtectionDomain protectiondomain, byte[] data) throws IllegalClassFormatException{
-		if(mainClass.equals(name)){
+		if(mainClass.equals(name) || mainClass2.equals(name)){
 			if(System.getProperty(PMLLoadFocuser.pmlMainClassTransformerSystemProperty).equals("t")){
 				System.out.println("PML-MainClassTransformer: detected that the main class was already loaded and altered, so is not altering it as it gets loaded this time");
 				throw new RuntimeException();//don't even bother - no changes
 			}
 		}
 		try{
-			if(mainClass.equals(name)){
+			if(mainClass.equals(name) || mainClass2.equals(name)){
 				System.out.println("PML: normal main class loading");
 				//transform the class to the moved one
 				ClassReader cr = new ClassReader(data);
